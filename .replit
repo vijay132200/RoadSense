@@ -15,12 +15,12 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 35271
-externalPort = 3001
+localPort = 33083
+externalPort = 3000
 
 [[ports]]
-localPort = 37267
-externalPort = 3000
+localPort = 35271
+externalPort = 3001
 
 [env]
 PORT = "5000"
@@ -48,3 +48,4 @@ waitForPort = 5000
 
 [agent]
 integrations = ["javascript_database:1.0.0"]
+expertMode = true

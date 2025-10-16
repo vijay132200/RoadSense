@@ -8,7 +8,7 @@ import { LocationDetailPanel } from '@/components/location-detail-panel';
 import { StatisticsDashboard } from '@/components/statistics-dashboard';
 import { AreaSearch } from '@/components/area-search';
 import type { Accident, SafetyLevel } from '@shared/schema';
-import { calculateSafetyLevel } from '@/lib/safety-utils';
+import { calculateSafetyLevelFromAccidents } from '@/lib/safety-utils';
 
 type ViewMode = 'map' | 'stats';
 
@@ -33,8 +33,7 @@ export default function Dashboard() {
     }, {} as Record<string, Accident[]>);
 
     Object.entries(areaGroups).forEach(([area, areaAccidents]) => {
-      const severities = areaAccidents.map(a => a.severity || '');
-      const safetyLevel = calculateSafetyLevel(areaAccidents.length, severities);
+      const safetyLevel = calculateSafetyLevelFromAccidents(areaAccidents);
       analytics.set(area, {
         count: areaAccidents.length,
         safetyLevel,

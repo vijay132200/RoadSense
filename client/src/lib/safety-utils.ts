@@ -1,6 +1,44 @@
 import type { SafetyLevel, Accident } from "@shared/schema";
 
+/**
+ * Calculate severity-weighted risk score for an area
+ * Heavily prioritizes fatalities and serious injuries over minor accidents
+ * 
+ * Scoring weights:
+ * - Each fatality: 100 points (extremely high weight)
+ * - Each injury: 20 points (high weight)
+ * - Each accident without injuries: 1 point (minimal weight)
+ * 
+ * This ensures one fatal accident counts more than many minor accidents
+ */
+export function calculateSeverityScore(accidents: Accident[]): number {
+  let score = 0;
+  
+  accidents.forEach(accident => {
+    const fatalities = accident.fatalities || 0;
+    const injuries = accident.injuries || 0;
+    
+    // Heavy weight for fatalities (100 points each)
+    score += fatalities * 100;
+    
+    // Moderate weight for injuries (20 points each)
+    score += injuries * 20;
+    
+    // Minimal weight for accidents without injuries (1 point each)
+    if (fatalities === 0 && injuries === 0) {
+      score += 1;
+    }
+  });
+  
+  return score;
+}
+
+/**
+ * Determine safety level based on severity-weighted score
+ * Thresholds calibrated to prioritize severe outcomes
+ */
 export function calculateSafetyLevel(accidentCount: number, severity: string[]): SafetyLevel {
+  // Legacy function - kept for compatibility
   const fatalCount = severity.filter(s => s?.toLowerCase() === 'fatal').length;
   const severeCount = severity.filter(s => s?.toLowerCase() === 'severe').length;
   
@@ -9,6 +47,32 @@ export function calculateSafetyLevel(accidentCount: number, severity: string[]):
   } else if (fatalCount > 0 || severeCount > 2 || accidentCount > 20) {
     return 'moderate';
   }
+  return 'safe';
+}
+
+/**
+ * Calculate safety level from accidents using severity-weighted scoring
+ * This is the primary function for risk assessment
+ */
+export function calculateSafetyLevelFromAccidents(accidents: Accident[]): SafetyLevel {
+  const severityScore = calculateSeverityScore(accidents);
+  
+  // High-risk: Any area with significant fatalities or severe injuries
+  // - 2+ fatalities (200+ score)
+  // - 10+ injuries (200+ score)
+  // - Mix of fatalities and injuries
+  if (severityScore >= 150) {
+    return 'high-risk';
+  }
+  
+  // Moderate: Areas with some injuries or fatalities
+  // - 1 fatality (100 score)
+  // - 3+ injuries (60+ score)
+  else if (severityScore >= 50) {
+    return 'moderate';
+  }
+  
+  // Safe: Areas with only minor accidents or very few incidents
   return 'safe';
 }
 
@@ -122,8 +186,7 @@ export function predictSafetyForHour(hour: number, historicalData: Accident[]): 
     return accHour === hour;
   });
 
-  const severity = hourAccidents.map(acc => acc.severity || '');
-  return calculateSafetyLevel(hourAccidents.length, severity);
+  return calculateSafetyLevelFromAccidents(hourAccidents);
 }
 
 export const DELHI_BOUNDS = {
