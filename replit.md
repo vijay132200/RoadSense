@@ -1,5 +1,15 @@
 # Delhi Road Safety Intelligence Platform
 
+## Recent Changes
+
+### Migration to Replit Environment (January 2025)
+- Created PostgreSQL database and imported 1700 accident records
+- Installed all Node.js dependencies
+- Added WebGL fallback error handling for map component
+- Configured server to run on port 5000 with proper host binding (0.0.0.0)
+- Verified API endpoints are functioning correctly
+- Note: Map visualization requires WebGL which may not be available in headless browsers; Statistics view remains fully functional
+
 ## Overview
 
 This is a data-driven road safety analytics platform for Delhi that provides interactive visualizations, real-time accident data exploration, and safety insights for government authorities and commuters. The platform transforms raw accident data into actionable intelligence through an interactive map-based interface, statistical dashboards, and area-specific safety analysis.
@@ -104,6 +114,12 @@ Preferred communication style: Simple, everyday language.
 - Bounded to Delhi region with min/max zoom levels
 - Coordinates validated within defined bounding box
 - Default center: Delhi geographic center
+
+**Environment Compatibility**:
+- Map requires WebGL support which may not be available in headless browser environments
+- Graceful fallback displays error message when WebGL initialization fails
+- Statistics dashboard remains fully functional regardless of WebGL support
+- Users can access all data and analytics through the Statistics view
 
 **Key Design Decisions**:
 - **Problem**: Need real-time map interaction with 1700+ accident points

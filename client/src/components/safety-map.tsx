@@ -18,35 +18,46 @@ export function SafetyMap({ accidents, selectedAccident, onSelectAccident, areaA
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<Map<string, mapboxgl.Marker>>(new Map());
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   // Initialize map
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [DELHI_BOUNDS.center.lng, DELHI_BOUNDS.center.lat],
-      zoom: DELHI_BOUNDS.zoom,
-      maxBounds: [
-        [DELHI_BOUNDS.minLng, DELHI_BOUNDS.minLat],
-        [DELHI_BOUNDS.maxLng, DELHI_BOUNDS.maxLat]
-      ],
-      minZoom: 10,
-      maxZoom: 16,
-    });
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [DELHI_BOUNDS.center.lng, DELHI_BOUNDS.center.lat],
+        zoom: DELHI_BOUNDS.zoom,
+        maxBounds: [
+          [DELHI_BOUNDS.minLng, DELHI_BOUNDS.minLat],
+          [DELHI_BOUNDS.maxLng, DELHI_BOUNDS.maxLat]
+        ],
+        minZoom: 10,
+        maxZoom: 16,
+      });
 
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    map.current.addControl(new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
-      trackUserLocation: true
-    }), 'top-right');
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      map.current.addControl(new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        trackUserLocation: true
+      }), 'top-right');
 
-    map.current.on('load', () => {
-      setMapLoaded(true);
-    });
+      map.current.on('load', () => {
+        setMapLoaded(true);
+      });
+
+      map.current.on('error', (e) => {
+        console.error('Map error:', e);
+        setMapError('Map failed to load. WebGL may not be supported in this environment.');
+      });
+    } catch (error) {
+      console.error('Failed to initialize map:', error);
+      setMapError('Failed to initialize map. WebGL may not be supported.');
+    }
 
     return () => {
       markers.current.forEach(marker => marker.remove());
@@ -115,6 +126,19 @@ export function SafetyMap({ accidents, selectedAccident, onSelectAccident, areaA
       });
     }
   }, [selectedAccident]);
+
+  if (mapError) {
+    return (
+      <div className="relative w-full h-full flex items-center justify-center bg-muted" data-testid="safety-map">
+        <div className="text-center p-6 max-w-md">
+          <p className="text-muted-foreground mb-4">{mapError}</p>
+          <p className="text-sm text-muted-foreground">
+            The map visualization requires WebGL support. You can still view accident data and statistics in the dashboard.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-full" data-testid="safety-map">
