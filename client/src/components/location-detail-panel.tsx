@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { Accident, SafetyLevel } from '@shared/schema';
-import { getSafetyColorClass, formatSafetyLevel, getSafetyColor, getHourlyDistribution, getTopCauses, getDominantCause, getCivilianSuggestions, getGovernmentSuggestions } from '@/lib/safety-utils';
+import { getSafetyColorClass, formatSafetyLevel, getSafetyColor, getHourlyDistribution, getTopCauses } from '@/lib/safety-utils';
 
 type LocationDetailPanelProps = {
   accident: Accident;
@@ -27,11 +27,6 @@ export function LocationDetailPanel({ accident, relatedAccidents, safetyLevel, o
   const avgResponseTime = Math.round(
     relatedAccidents.reduce((sum, acc) => sum + (acc.ambulanceTimeMin || 0), 0) / relatedAccidents.length
   );
-
-  // Get dominant cause for cause-specific suggestions
-  const dominantCause = getDominantCause(relatedAccidents);
-  const civilianSuggestions = getCivilianSuggestions(dominantCause);
-  const governmentSuggestions = getGovernmentSuggestions(dominantCause);
 
   return (
     <div className="fixed inset-y-0 right-0 w-full md:w-[450px] bg-background border-l border-border shadow-2xl z-50 overflow-y-auto">
@@ -181,44 +176,26 @@ export function LocationDetailPanel({ accident, relatedAccidents, safetyLevel, o
           </Card>
         )}
 
-        {/* Dominant Cause Alert */}
-        <Card className="bg-destructive/10 border-destructive/30">
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              Primary Accident Cause: {dominantCause}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        {/* Cause-Specific Recommendations */}
+        {/* Recommendations */}
         <Card className="bg-primary/5 border-primary/20">
           <CardHeader>
             <CardTitle className="text-base">Safety Recommendations</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">
-              Based on dominant cause analysis
-            </p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             <div>
-              <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <span className="bg-primary/20 px-2 py-0.5 rounded text-xs">For Government & Authorities</span>
-              </p>
-              <ul className="text-sm space-y-2 list-disc list-inside text-muted-foreground">
-                {governmentSuggestions.map((suggestion, index) => (
-                  <li key={index} className="leading-relaxed">{suggestion}</li>
-                ))}
+              <p className="text-sm font-medium mb-2">For Authorities:</p>
+              <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
+                <li>Increase patrol during peak hours ({peakHours[0]?.hour}:00 - {peakHours[0]?.hour + 1}:00)</li>
+                <li>Address top cause: {topCauses[0]?.cause}</li>
+                {safetyLevel === 'high-risk' && <li>Deploy speed enforcement cameras</li>}
               </ul>
             </div>
-            <Separator />
             <div>
-              <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <span className="bg-chart-2/20 px-2 py-0.5 rounded text-xs">For Civilians & Commuters</span>
-              </p>
-              <ul className="text-sm space-y-2 list-disc list-inside text-muted-foreground">
-                {civilianSuggestions.map((suggestion, index) => (
-                  <li key={index} className="leading-relaxed">{suggestion}</li>
-                ))}
+              <p className="text-sm font-medium mb-2">For Commuters:</p>
+              <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
+                <li>Avoid travel during {peakHours[0]?.hour}:00 - {peakHours[0]?.hour + 1}:00 if possible</li>
+                <li>Exercise extra caution on {accident.roadType} roads</li>
+                <li>Be alert for {topCauses[0]?.cause.toLowerCase()}</li>
               </ul>
             </div>
           </CardContent>

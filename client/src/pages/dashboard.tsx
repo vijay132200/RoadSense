@@ -8,7 +8,7 @@ import { LocationDetailPanel } from '@/components/location-detail-panel';
 import { StatisticsDashboard } from '@/components/statistics-dashboard';
 import { AreaSearch } from '@/components/area-search';
 import type { Accident, SafetyLevel } from '@shared/schema';
-import { calculateSafetyLevelFromAccidents, calculateAreaScores } from '@/lib/safety-utils';
+import { calculateSafetyLevelFromAccidents } from '@/lib/safety-utils';
 
 type ViewMode = 'map' | 'stats';
 
@@ -24,9 +24,6 @@ export default function Dashboard() {
   const areaAnalytics = useMemo(() => {
     const analytics = new Map<string, { count: number; safetyLevel: SafetyLevel }>();
     
-    // Calculate all area scores for percentile-based classification
-    const { areaScores, allScores } = calculateAreaScores(accidents);
-    
     const areaGroups = accidents.reduce((acc, accident) => {
       if (!acc[accident.area]) {
         acc[accident.area] = [];
@@ -36,7 +33,7 @@ export default function Dashboard() {
     }, {} as Record<string, Accident[]>);
 
     Object.entries(areaGroups).forEach(([area, areaAccidents]) => {
-      const safetyLevel = calculateSafetyLevelFromAccidents(areaAccidents, allScores);
+      const safetyLevel = calculateSafetyLevelFromAccidents(areaAccidents);
       analytics.set(area, {
         count: areaAccidents.length,
         safetyLevel,
