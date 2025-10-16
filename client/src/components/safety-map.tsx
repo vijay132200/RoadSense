@@ -27,7 +27,7 @@ export function SafetyMap({ accidents, selectedAccident, onSelectAccident, areaA
     try {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: 'mapbox://styles/mapbox/streets-v12',
         center: [DELHI_BOUNDS.center.lng, DELHI_BOUNDS.center.lat],
         zoom: DELHI_BOUNDS.zoom,
         maxBounds: [
@@ -35,7 +35,7 @@ export function SafetyMap({ accidents, selectedAccident, onSelectAccident, areaA
           [DELHI_BOUNDS.maxLng, DELHI_BOUNDS.maxLat]
         ],
         minZoom: 10,
-        maxZoom: 16,
+        maxZoom: 18,
       });
 
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
