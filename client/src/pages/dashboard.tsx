@@ -13,7 +13,7 @@ import { calculateSafetyLevel } from '@/lib/safety-utils';
 type ViewMode = 'map' | 'stats';
 
 export default function Dashboard() {
-  const [viewMode, setViewMode] = useState<ViewMode>('map');
+  const [viewMode, setViewMode] = useState<ViewMode>('stats');
   const [selectedAccident, setSelectedAccident] = useState<Accident | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
+import { MapIcon } from 'lucide-react';
 import { DELHI_BOUNDS, getSafetyColor } from '@/lib/safety-utils';
 import type { Accident, SafetyLevel } from '@shared/schema';
 
@@ -130,10 +131,22 @@ export function SafetyMap({ accidents, selectedAccident, onSelectAccident, areaA
   if (mapError) {
     return (
       <div className="relative w-full h-full flex items-center justify-center bg-muted" data-testid="safety-map">
-        <div className="text-center p-6 max-w-md">
+        <div className="text-center p-8 max-w-2xl">
+          <div className="mb-4">
+            <MapIcon className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Map Requires WebGL</h3>
           <p className="text-muted-foreground mb-4">{mapError}</p>
-          <p className="text-sm text-muted-foreground">
-            The map visualization requires WebGL support. You can still view accident data and statistics in the dashboard.
+          <div className="bg-card border border-border rounded-lg p-4 text-left">
+            <p className="text-sm font-medium mb-2">To view the interactive map:</p>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li>• Open this app in a full browser (Chrome, Firefox, Safari)</li>
+              <li>• The map will display with full street details and neighborhood labels</li>
+              <li>• All accident markers will be visible and interactive</li>
+            </ul>
+          </div>
+          <p className="text-sm text-muted-foreground mt-4">
+            In the meantime, use the <strong>Statistics</strong> tab to explore all accident data and analytics.
           </p>
         </div>
       </div>
